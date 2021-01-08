@@ -13,6 +13,8 @@ I did nothing for months :-)
 good thing I have GIT, not one of my harddrives survived the fire
 
 I found out today that math.h is a (relatively (coming from a person who has unfortunately dealt with Windows.h)) small header
+after typing "man math.h" I regret saying that
+welp, we'll see if I finish it. so many duplicate functions~
 I suppose I'll finish it soon
 
 Goals:
