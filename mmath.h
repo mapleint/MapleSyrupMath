@@ -373,14 +373,18 @@ double remquo(double numer, double denom, int* quot)
 
 double copysign(double x, double y)
 {
-	double o = x;
-	double k = y;
-#ifdef _WIN32
-	*((int*)&o) |= ~((*((int*)&k) << 31) >> 31);
-#elif
-	*((int*)&o)[1] |= ~((*((int*)&k)[1] << 31) >> 31);
-#endif
-	return o;
+//	double o = x;
+//	double k = y;
+//#ifdef _WIN32
+//	*((int*)&o) = ((*((int*)&k) >> 31) << 31) + *((int*)&o);
+//#elif
+//	*((int*)&o)[1] |= ~((*((int*)&k)[1] << 31) >> 31);
+//#endif
+//	return o;
+	//didn't work, will work out later
+	if ((y < 0 && x > 0) || (x < 0 && y > 0))
+		return x * -1.f;
+	else return x;
 }
 
 double nextafter(double x, double y)
