@@ -4,6 +4,7 @@
  * Lol no I don't do that, though it would be funny 
  * I try to implement according to :
  * http://www.cplusplus.com/reference/cmath/?kw=math.h
+ I will not, however, reimpliment functions that are virtually the same
  */
 
 /*declare all functions as many may rely on others*/
@@ -76,16 +77,6 @@ double cbrt(double x);
 
 double hypot(double x, double y);
 
-/* Error and Gamma*/
-
-double erf(double x);
-
-double erfc(double x);
-
-double tgamma(double x);
-
-double lgamma(double x);
-
 /* Rounding and remainder */
 
 double ceil(double x);
@@ -98,13 +89,7 @@ double trunc(double x);
 
 double round(double x);
 
-long int lround(double x);
-
-long long int llround(double x);
-
 double rint(double x);
-
-long int lrint(double x);
 
 double nearbyint(double x);
 
@@ -155,7 +140,7 @@ double tan(double x)
 
 double asin(double x) 
 {
-
+	
 }
 
 double acos(double x) 
@@ -177,7 +162,7 @@ double atan2(double x)
 
 double cosh(double x)
 {
-
+	
 }
 
 double sinh(double x)
@@ -187,7 +172,7 @@ double sinh(double x)
 
 double tanh(double x)
 {
-
+	sinh(x) / cosh(x);
 }
 
 double acosh(double x)
@@ -286,100 +271,101 @@ double pow(double base, double exponent)
 
 double sqrt(double x)
 {
-
+	if (x < 0)
+		return 0;
+	int i = 0;
+	double l = fmin(1, 0), b = x / 2, h = fmax(x, 1);
+	for (; i < 100; i++) {
+		b = (l+h)/2;
+		if (b * b == x)
+			return b;
+		if (b * b > x)
+			h = b;
+		else
+			l = b;
+	}
+	return b;
 }
 
 double cbrt(double x)
 {
-
+	int i = 0;
+	if(x < 0)
+		double l = fmax(-1, x), b = x / 2, h = fmin(x, -1);
+	double l = fmin(1, x), b = x / 2, h = fmax(x, 1);
+	for (; i < 100; i++) {
+		b = (l + h) / 2;
+		if (b * b * b == x)
+			return b;
+		if (b * b * b > x)
+			h = b;
+		else
+			l = b;
+	}
+	return b;
 }
 
 double hypot(double x, double y)
 {
-
-}
-
-/* Error and Gamma*/
-
-double erf(double x)
-{
-
-}
-
-double erfc(double x)
-{
-
-}
-
-double tgamma(double x)
-{
-
-}
-
-double lgamma(double x)
-{
-
+	return sqrt(x * x + y * y);
 }
 
 /* Rounding and remainder */
 
 double ceil(double x)
 {
-
+	floor(x + 1);
 }
 
 double floor(double x)
 {
-
+	return (double)(int)x;
 }
 
 double fmod(double numer, double denom)
 {
-
+	double q = numer / denom;
+	q -= floor(q);
+	return q * denom;
 }
 
 double trunc(double x)
 {
-
+	return floor(x);
 }
 
 double round(double x)
 {
-
+	nearbyint(x);
 }
 
-long int lround(double x)
-{
-
-}
-
-long long int llround(double x)
-{
-
-}
 
 double rint(double x)
 {
-
+	return nearbyint(x);
 }
 
-long int lrint(double x)
-{
-
-}
 
 double nearbyint(double x)
 {
-
+	if (x + .5f >= floor(x + 1))
+		return floor(x + 1);
+	return floor(x);
 }
 
 double remainder(double numer, double denom)
 {
-
+	int rquot = nearbyint(numer / denom);
+	return numer - rquot * denom;
 }
 
 double remquo(double numer, double denom, int* quot)
 {
+
+	double q = numer / denom;
+	q -= floor(q);
+	*quot = (numer - q * denom)/denom;
+	return q * denom;
 
 }
 
@@ -387,7 +373,14 @@ double remquo(double numer, double denom, int* quot)
 
 double copysign(double x, double y)
 {
-
+	double o = x;
+	double k = y;
+#ifdef _WIN32
+	*((int*)&o) |= ~((*((int*)&k) << 31) >> 31);
+#elif
+	*((int*)&o)[1] |= ~((*((int*)&k)[1] << 31) >> 31);
+#endif
+	return o;
 }
 
 double nextafter(double x, double y)
@@ -404,24 +397,37 @@ double nexttoward(double x, long double y)
 
 double fmin(double x, double y)
 {
-
+	if (x > y)
+		return y;
+	return x;
 }
 
 double fmax(double x, double y)
 {
-
+	if (x > y)
+		return x;
+	return y;
 }
 
 double fdim(double x, double y)
 {
-
+	return fabs(x - y);
 }
 
 /* other */
 
 double fabs(double x)
 {
-	return *((int*)&x) | 0x7fffffff;
+	/* floats can't be bit manipulated
+	   and this is platform iffy*/
+	double o = x;
+#ifdef _WIN32
+	*((int*)&o) &= 0x7fffffff;
+#elif
+	*((int*)&o)[1] &= 0x7fffffff;
+#endif
+	return o;
+
 }
 
 double fma(double x, double y, double z) 
